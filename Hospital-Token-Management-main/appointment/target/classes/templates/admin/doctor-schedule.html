@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configure Schedule - Hospital Token Management System</title>
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            font-size: 14px;
+        }
+        .schedule-table th {
+            text-align: left;
+            padding: 12px 16px;
+            font-weight: 700;
+            color: var(--text-main);
+            border-bottom: 2px solid var(--border-color);
+        }
+        .schedule-table td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+        .day-name {
+            font-weight: 700;
+            color: var(--text-main);
+            text-transform: uppercase;
+            font-size: 13px;
+        }
+        .switch-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .time-picker {
+            padding: 8px 12px;
+            font-size: 14px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            outline: none;
+            width: 130px;
+            font-family: inherit;
+        }
+        .time-picker:focus {
+            border-color: var(--primary-color);
+        }
+        .time-picker:disabled {
+            background-color: var(--bg-base);
+            color: var(--text-muted);
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="navbar">
+        <div class="app-container nav-flex">
+            <a th:href="@{/admin/dashboard}" class="logo-brand">
+                <i class="fa-solid fa-hospital-user" style="color: var(--primary-color);"></i>
+                <span>MedQueue <span style="font-size: 11px; padding: 2px 8px; border-radius: 10px; background-color: #f1f5f9; color: var(--text-muted); -webkit-text-fill-color: initial;">ADMIN</span></span>
+            </a>
+            
+            <nav>
+                <a th:href="@{/admin/doctors}" class="nav-link"><i class="fa-solid fa-arrow-left-long"></i> Back to Doctors</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main style="padding: 40px 0;">
+        <div class="app-container" style="max-width: 800px;">
+            
+            <!-- Page Title -->
+            <div style="margin-bottom: 32px; border-bottom: 1px solid var(--border-color); padding-bottom: 16px;">
+                <h2 style="font-size: 28px; font-weight: 800; color: var(--text-main);">Configure Weekly Availability</h2>
+                <p style="color: var(--text-muted); font-size: 14px; margin-top: 4px;">
+                    Setting schedule for <strong style="color: var(--primary-color);" th:text="${'Dr. ' + doctor.firstName + ' ' + doctor.lastName}">Dr. Ravi Prasad</strong> 
+                    (<span th:text="${doctor.specialization.name}">Cardiology</span>)
+                </p>
+            </div>
+
+            <!-- Glass Card containing list -->
+            <div class="glass-card" style="padding: 24px;">
+                <h3 style="font-size: 18px; font-weight: 700; color: var(--text-main);"><i class="fa-regular fa-clock" style="color: var(--primary-color); margin-right: 8px;"></i> Weekday Operating Shifts</h3>
+                
+                <form th:action="@{/admin/doctors/schedule/{id}(id=${doctor.id})}" th:object="${wrapper}" method="post">
+                    
+                    <table class="schedule-table">
+                        <thead>
+                            <tr>
+                                <th>Day of Week</th>
+                                <th style="width: 140px; text-align: center;">Leave / Off-Day</th>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Loop through each schedule -->
+                            <tr th:each="sched, stat : *{schedules}">
+                                <!-- Hidden inputs to bind IDs and Constant values -->
+                                <input type="hidden" th:field="*{schedules[__${stat.index}__].id}" />
+                                <input type="hidden" th:field="*{schedules[__${stat.index}__].dayOfWeek}" />
+                                
+                                <!-- Day Name Column -->
+                                <td>
+                                    <span class="day-name" th:text="${sched.dayOfWeek}">MONDAY</span>
+                                </td>
+                                
+                                <!-- Checkbox to toggle Off status -->
+                                <td style="text-align: center;">
+                                    <div class="switch-container" style="justify-content: center;">
+                                        <input type="checkbox" th:id="${'off-' + stat.index}" 
+                                               th:field="*{schedules[__${stat.index}__].off}" 
+                                               class="off-checkbox"
+                                               th:data-index="${stat.index}"
+                                               style="width: 18px; height: 18px; cursor: pointer;"
+                                               onclick="toggleDayRow(this)">
+                                    </div>
+                                </td>
+                                
+                                <!-- Start Time input -->
+                                <td>
+                                    <input type="time" th:id="${'start-' + stat.index}" 
+                                           th:field="*{schedules[__${stat.index}__].startTime}" 
+                                           class="time-picker start-picker"
+                                           th:disabled="${sched.off}">
+                                </td>
+                                
+                                <!-- End Time input -->
+                                <td>
+                                    <input type="time" th:id="${'end-' + stat.index}" 
+                                           th:field="*{schedules[__${stat.index}__].endTime}" 
+                                           class="time-picker end-picker"
+                                           th:disabled="${sched.off}">
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div style="display: flex; justify-content: flex-end; gap: 16px; border-top: 1px solid var(--border-color); padding-top: 24px; margin-top: 16px;">
+                        <a th:href="@{/admin/doctors}" class="btn-secondary-custom">Cancel</a>
+                        <button type="submit" class="btn-primary-custom">
+                            Save Availability Configuration <i class="fa-solid fa-save"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Client-side Interactive Toggles -->
+    <script>
+        function toggleDayRow(checkbox) {
+            const index = checkbox.getAttribute('data-index');
+            const startTimeInput = document.getElementById('start-' + index);
+            const endTimeInput = document.getElementById('end-' + index);
+            
+            if (checkbox.checked) {
+                startTimeInput.disabled = true;
+                endTimeInput.disabled = true;
+                startTimeInput.value = '';
+                endTimeInput.value = '';
+            } else {
+                startTimeInput.disabled = false;
+                endTimeInput.disabled = false;
+                // prefill typical shifts if empty for convenience
+                if (!startTimeInput.value) startTimeInput.value = '09:00';
+                if (!endTimeInput.value) endTimeInput.value = '13:00';
+            }
+        }
+    </script>
+
+
+
+</body>
+</html>

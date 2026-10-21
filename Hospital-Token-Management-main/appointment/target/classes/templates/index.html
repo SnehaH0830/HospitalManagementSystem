@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Token Management System</title>
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="navbar">
+        <div class="app-container nav-flex">
+            <a href="/" class="logo-brand">
+                <i class="fa-solid fa-hospital-user" style="color: var(--primary-color);"></i>
+                <span>MedQueue</span>
+            </a>
+            
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="/" class="nav-link">Home</a></li>
+                    
+                    <!-- Guest Links -->
+                    <li sec:authorize="isAnonymous()">
+                        <a th:href="@{/auth/login}" class="nav-link">Login</a>
+                    </li>
+                    <li sec:authorize="isAnonymous()">
+                        <a th:href="@{/auth/register}" class="btn-primary-custom">
+                            <i class="fa-solid fa-user-plus"></i> Register
+                        </a>
+                    </li>
+                    
+                    <!-- Authenticated Dashboard Redirection -->
+                    <li sec:authorize="hasRole('PATIENT')">
+                        <a th:href="@{/patient/dashboard}" class="btn-primary-custom">
+                            <i class="fa-solid fa-house-user"></i> Patient Panel
+                        </a>
+                    </li>
+                    <li sec:authorize="hasRole('DOCTOR')">
+                        <a th:href="@{/doctor/dashboard}" class="btn-primary-custom">
+                            <i class="fa-solid fa-stethoscope"></i> Doctor Panel
+                        </a>
+                    </li>
+                    <li sec:authorize="hasRole('ADMIN')">
+                        <a th:href="@{/admin/dashboard}" class="btn-primary-custom">
+                            <i class="fa-solid fa-user-shield"></i> Admin Panel
+                        </a>
+                    </li>
+                    <li sec:authorize="isAuthenticated()">
+                        <a th:href="@{/auth/logout}" class="nav-link" style="color: var(--accent-danger);">
+                            <i class="fa-solid fa-right-from-bracket"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <main style="padding: 60px 0;">
+        <div class="app-container">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 48px; align-items: center;">
+                <div>
+                    <h1 style="font-size: 48px; font-weight: 800; color: var(--text-main); line-height: 1.2; margin-bottom: 20px;">
+                        Skip the Waiting Room.<br>
+                        <span style="color: var(--primary-color); background: linear-gradient(135deg, var(--primary-color), var(--accent-info)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Track Your Queue Live.</span>
+                    </h1>
+                    <p style="font-size: 16px; color: var(--text-muted); margin-bottom: 32px; max-width: 500px;">
+                        Book appointments remotely, receive an automated queue token number, track exactly how many patients are ahead of you in real-time, and get notified when it is your turn to see the doctor.
+                    </p>
+                    <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                        <a th:href="@{/auth/register}" class="btn-primary-custom" style="padding: 16px 32px; font-size: 16px;">
+                            Get Started <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                        <a th:href="@{/auth/login}" class="btn-secondary-custom" style="padding: 16px 32px; font-size: 16px;">
+                            Sign In
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Interactive Feature Illustration -->
+                <div class="glass-card" style="padding: 40px; border-radius: var(--border-radius-lg); background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(224,242,254,0.3));">
+                    <h3 style="font-size: 20px; font-weight: 700; color: var(--text-main); margin-bottom: 24px; border-left: 4px solid var(--primary-color); padding-left: 12px;">
+                        Digital Queue Advantage
+                    </h3>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 24px;">
+                        <div style="display: flex; gap: 16px;">
+                            <div class="metric-icon metric-icon-blue" style="flex-shrink: 0; width: 40px; height: 40px;">
+                                <i class="fa-solid fa-ticket"></i>
+                            </div>
+                            <div>
+                                <h4 style="font-size: 15px; color: var(--text-main); font-weight: 600; margin-bottom: 4px;">Instant Token Generation</h4>
+                                <p style="font-size: 13px; color: var(--text-muted);">Secure, sequential queue tokens assigned immediately on booking to prevent duplicates.</p>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 16px;">
+                            <div class="metric-icon metric-icon-green" style="flex-shrink: 0; width: 40px; height: 40px;">
+                                <i class="fa-solid fa-circle-nodes"></i>
+                            </div>
+                            <div>
+                                <h4 style="font-size: 15px; color: var(--text-main); font-weight: 600; margin-bottom: 4px;">Live Position Tracking</h4>
+                                <p style="font-size: 13px; color: var(--text-muted);">Check how many patients are ahead of you. No need to stand in physical reception lines.</p>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 16px;">
+                            <div class="metric-icon metric-icon-orange" style="flex-shrink: 0; width: 40px; height: 40px;">
+                                <i class="fa-solid fa-envelope-open-text"></i>
+                            </div>
+                            <div>
+                                <h4 style="font-size: 15px; color: var(--text-main); font-weight: 600; margin-bottom: 4px;">SMS & Email Alerts</h4>
+                                <p style="font-size: 13px; color: var(--text-muted);">Get an automatic notification when only 2 patients are ahead of you and when the doctor calls your token.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+ 
+
+</body>
+</html>

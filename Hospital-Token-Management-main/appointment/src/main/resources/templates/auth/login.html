@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - Hospital Token Management System</title>
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="navbar">
+        <div class="app-container nav-flex">
+            <a href="/" class="logo-brand">
+                <i class="fa-solid fa-hospital-user" style="color: var(--primary-color);"></i>
+                <span>MedQueue</span>
+            </a>
+            <nav>
+                <a href="/" class="nav-link"><i class="fa-solid fa-arrow-left-long"></i> Back to Home</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main style="padding: 80px 0; display: flex; align-items: center; justify-content: center; flex: 1;">
+        <div style="width: 100%; max-width: 440px; padding: 0 20px;">
+            
+            <!-- Registration Alert Banner -->
+            <div th:if="${param.registered}" class="alert-banner alert-banner-success">
+                <i class="fa-solid fa-circle-check"></i>
+                <div>
+                    <strong>Registration Successful!</strong> Please log in below.
+                </div>
+            </div>
+
+            <!-- Logout Alert Banner -->
+            <div th:if="${param.logout}" class="alert-banner alert-banner-success" style="background-color: var(--primary-light); border-color: #bae6fd; color: #0369a1;">
+                <i class="fa-solid fa-circle-info"></i>
+                <div>
+                    You have successfully logged out.
+                </div>
+            </div>
+
+            <!-- Login Error Alert Banner -->
+            <div th:if="${param.error}" class="alert-banner alert-banner-danger">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <div>
+                    <strong>Invalid Credentials!</strong> Please check your email and password.
+                </div>
+            </div>
+
+            <!-- Glass card container -->
+            <div class="glass-card">
+                <div style="text-align: center; margin-bottom: 32px;">
+                    <i class="fa-solid fa-shield-halved" style="font-size: 36px; color: var(--primary-color); margin-bottom: 16px;"></i>
+                    <h2 style="font-size: 24px; font-weight: 800; color: var(--text-main);">Welcome Back</h2>
+                    <p style="color: var(--text-muted); font-size: 14px; margin-top: 4px;">Sign in to access your portal</p>
+                </div>
+
+                <form th:action="@{/auth/login}" method="post">
+                    <!-- Email Field -->
+                    <div class="form-group">
+                        <label for="username" class="form-label">Email Address</label>
+                        <div style="position: relative;">
+                            <i class="fa-solid fa-envelope" style="position: absolute; left: 16px; top: 16px; color: var(--text-muted);"></i>
+                            <input type="email" id="username" name="username" class="form-input" placeholder="e.g., patient@email.com" required style="padding-left: 44px;">
+                        </div>
+                    </div>
+
+                    <!-- Password Field -->
+                    <div class="form-group">
+                        <label for="password" class="form-label">Password</label>
+                        <div style="position: relative;">
+                            <i class="fa-solid fa-lock" style="position: absolute; left: 16px; top: 16px; color: var(--text-muted);"></i>
+                            <input type="password" id="password" name="password" class="form-input" placeholder="••••••••" required style="padding-left: 44px;">
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn-primary-custom" style="width: 100%; padding: 14px; font-size: 15px; margin-top: 12px;">
+                        Sign In <i class="fa-solid fa-right-to-bracket"></i>
+                    </button>
+                </form>
+
+                <div style="text-align: center; margin-top: 32px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                    <p style="font-size: 14px; color: var(--text-muted);">
+                        Don't have an account? <a th:href="@{/auth/register}" style="color: var(--primary-color); font-weight: 600; text-decoration: none;">Register Now</a>
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Quick access hints for Testing -->
+            
+            
+        </div>
+    </main>
+
+   
+
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account - Hospital Token Management System</title>
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="navbar">
+        <div class="app-container nav-flex">
+            <a href="/" class="logo-brand">
+                <i class="fa-solid fa-hospital-user" style="color: var(--primary-color);"></i>
+                <span>MedQueue</span>
+            </a>
+            <nav>
+                <a href="/" class="nav-link"><i class="fa-solid fa-arrow-left-long"></i> Back to Home</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main style="padding: 60px 0; display: flex; align-items: center; justify-content: center; flex: 1;">
+        <div style="width: 100%; max-width: 520px; padding: 0 20px;">
+            
+            <div class="glass-card">
+                <div style="text-align: center; margin-bottom: 24px;">
+                    <i class="fa-solid fa-user-plus" style="font-size: 36px; color: var(--primary-color); margin-bottom: 16px;"></i>
+                    <h2 style="font-size: 24px; font-weight: 800; color: var(--text-main);">Create Patient Account</h2>
+                    <p style="color: var(--text-muted); font-size: 14px; margin-top: 4px;">Book, track, and manage hospital queues online</p>
+                </div>
+
+                <form th:action="@{/auth/register}" th:object="${user}" method="post">
+                    
+                    <!-- First & Last Name row -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <!-- First Name Field -->
+                        <div class="form-group">
+                            <label for="firstName" class="form-label">First Name</label>
+                            <input type="text" id="firstName" th:field="*{firstName}" class="form-input" placeholder="John" required>
+                            <div class="form-error-text" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}">First Name error</div>
+                        </div>
+
+                        <!-- Last Name Field -->
+                        <div class="form-group">
+                            <label for="lastName" class="form-label">Last Name</label>
+                            <input type="text" id="lastName" th:field="*{lastName}" class="form-input" placeholder="Doe" required>
+                            <div class="form-error-text" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}">Last Name error</div>
+                        </div>
+                    </div>
+
+                    <!-- Email Field -->
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email Address</label>
+                        <input type="email" id="email" th:field="*{email}" class="form-input" placeholder="john.doe@email.com" required>
+                        <div class="form-error-text" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">Email error</div>
+                    </div>
+
+                    <!-- Password Field -->
+                    <div class="form-group">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" id="password" th:field="*{password}" class="form-input" placeholder="Min. 6 characters" required>
+                        <div class="form-error-text" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Password error</div>
+                    </div>
+
+                    <!-- Phone Number Field -->
+                    <div class="form-group">
+                        <label for="phone" class="form-label">Phone Number</label>
+                        <input type="tel" id="phone" th:field="*{phone}" class="form-input" placeholder="e.g., 9876543210" required>
+                        <div class="form-error-text" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}">Phone error</div>
+                    </div>
+
+                    <!-- Date of Birth Field -->
+                    <div class="form-group">
+                        <label for="dateOfBirth" class="form-label">Date of Birth</label>
+                        <input type="date" id="dateOfBirth" th:field="*{dateOfBirth}" class="form-input" required>
+                        <div class="form-error-text" th:if="${#fields.hasErrors('dateOfBirth')}" th:errors="*{dateOfBirth}">DOB error</div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn-primary-custom" style="width: 100%; padding: 14px; font-size: 15px; margin-top: 12px;">
+                        Register Account <i class="fa-solid fa-user-check"></i>
+                    </button>
+                </form>
+
+                <div style="text-align: center; margin-top: 24px; border-top: 1px solid var(--border-color); padding-top: 16px;">
+                    <p style="font-size: 14px; color: var(--text-muted);">
+                        Already have an account? <a th:href="@{/auth/login}" style="color: var(--primary-color); font-weight: 600; text-decoration: none;">Sign In</a>
+                    </p>
+                </div>
+            </div>
+            
+        </div>
+    </main>
+
+  
+
+</body>
+</html>

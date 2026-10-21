@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Dashboard - MedQueue</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .appt-card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-md);
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition-smooth);
+            flex-wrap: wrap;
+        }
+        .appt-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: rgba(14,165,233,0.25);
+        }
+        .appt-token {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-info));
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+        .appt-info { flex: 1; min-width: 160px; }
+        .appt-info h4 { font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
+        .appt-info p  { font-size: 13px; color: var(--text-muted); }
+        .appt-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .status-pill {
+            display: inline-flex; align-items: center;
+            padding: 4px 12px; border-radius: 20px;
+            font-size: 12px; font-weight: 600; text-transform: uppercase;
+        }
+        .status-booked     { background:#e0f2fe; color:#0369a1; }
+        .status-waiting    { background:#fffbeb; color:#92400e; }
+        .status-called     { background:#e0e7ff; color:#4338ca; }
+        .status-in_progress{ background:#f0fdf4; color:#166534; }
+        .ahead-badge {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            border-radius: 12px;
+            padding: 4px 12px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .btn-sm {
+            padding: 8px 18px;
+            font-size: 13px;
+            border-radius: var(--border-radius-sm);
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: var(--transition-smooth);
+            text-decoration: none;
+        }
+        .btn-sm-primary { background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); color: #fff; box-shadow: 0 4px 12px rgba(14,165,233,0.2); }
+        .btn-sm-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(14,165,233,0.3); }
+        .btn-sm-danger  { background: #fee2e2; color: #991b1b; }
+        .btn-sm-danger:hover { background: #fecaca; }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+        .empty-state i { font-size: 48px; margin-bottom: 16px; display: block; color: #cbd5e1; }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .section-header h3 { font-size: 20px; font-weight: 700; color: var(--text-main); }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="navbar">
+        <div class="app-container nav-flex">
+            <a th:href="@{/patient/dashboard}" class="logo-brand">
+                <i class="fa-solid fa-hospital-user" style="color: var(--primary-color);"></i>
+                <span>MedQueue <span style="font-size:11px; padding:2px 8px; border-radius:10px; background:#f1f5f9; color:var(--text-muted); -webkit-text-fill-color:initial;">PATIENT</span></span>
+            </a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a th:href="@{/patient/dashboard}" class="nav-link" style="color:var(--primary-color); font-weight:700;">Dashboard</a></li>
+                    <li><a th:href="@{/patient/book}"      class="nav-link">Book Appointment</a></li>
+                    <li><a th:href="@{/patient/history}"   class="nav-link">History</a></li>
+                    <li>
+                        <a th:href="@{/auth/logout}" class="nav-link" style="color:var(--accent-danger);">
+                            <i class="fa-solid fa-right-from-bracket"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main style="padding: 40px 0; flex: 1;">
+        <div class="app-container">
+
+            <!-- Flash Messages -->
+            <div th:if="${successMessage}" class="alert-banner alert-banner-success" style="margin-bottom:24px;">
+                <i class="fa-solid fa-circle-check"></i>
+                <span th:text="${successMessage}"></span>
+            </div>
+            <div th:if="${errorMessage}" class="alert-banner alert-banner-danger" style="margin-bottom:24px;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span th:text="${errorMessage}"></span>
+            </div>
+
+            <!-- Welcome Header -->
+            <div style="margin-bottom:32px;">
+                <h1 style="font-size:28px; font-weight:800; color:var(--text-main);">
+                    Hello, <span th:text="${patient.firstName}" style="color:var(--primary-color);">Patient</span>!
+                </h1>
+                <p style="color:var(--text-muted); font-size:14px;">
+                    <i class="fa-regular fa-calendar"></i>
+                    Today is <span th:text="${#temporals.format(today, 'EEEE, dd MMMM yyyy')}">Today</span>
+                </p>
+            </div>
+
+            <!-- Stats bar -->
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px,1fr)); gap:20px; margin-bottom:36px;">
+                <div class="metric-card">
+                    <div class="metric-icon metric-icon-blue"><i class="fa-solid fa-clock"></i></div>
+                    <div class="metric-content">
+                        <h4 th:text="${activeAppointments.size()}">0</h4>
+                        <p>Active Bookings</p>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon metric-icon-green"><i class="fa-solid fa-calendar-check"></i></div>
+                    <div class="metric-content">
+                        <h4 th:text="${totalBookings}">0</h4>
+                        <p>Total Bookings</p>
+                    </div>
+                </div>
+                <div class="metric-card" style="cursor:pointer;" onclick="window.location='/patient/book'">
+                    <div class="metric-icon metric-icon-orange"><i class="fa-solid fa-plus"></i></div>
+                    <div class="metric-content">
+                        <h4 style="font-size:16px; font-weight:700;">Book Now</h4>
+                        <p>New Appointment</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Appointments -->
+            <div class="section-header">
+                <h3><i class="fa-solid fa-list-check" style="color:var(--primary-color);"></i> Your Active Appointments</h3>
+                <a th:href="@{/patient/book}" class="btn-primary-custom" style="padding:10px 20px; font-size:13px;">
+                    <i class="fa-solid fa-plus"></i> Book New
+                </a>
+            </div>
+
+            <!-- Active list -->
+            <div style="display:flex; flex-direction:column; gap:16px;" th:if="${!activeAppointments.empty}">
+                <div class="appt-card" th:each="appt : ${activeAppointments}">
+                    <!-- Token bubble -->
+                    <div class="appt-token" th:text="${'#' + appt.tokenNumber}">#1</div>
+
+                    <!-- Info -->
+                    <div class="appt-info">
+                        <h4>
+                            Dr. <span th:text="${appt.doctor.firstName + ' ' + appt.doctor.lastName}">Doctor Name</span>
+                        </h4>
+                        <p>
+                            <i class="fa-solid fa-stethoscope"></i>
+                            <span th:text="${appt.doctor.specialization.name}">Specialization</span>
+                            &nbsp;·&nbsp;
+                            <i class="fa-solid fa-door-open"></i>
+                            <span th:text="${appt.doctor.roomNumber}">Room</span>
+                        </p>
+                        <p style="margin-top:4px;">
+                            <i class="fa-regular fa-calendar"></i>
+                            <span th:text="${#temporals.format(appt.appointmentDate, 'dd MMM yyyy')}">Date</span>
+                        </p>
+                    </div>
+
+                    <!-- Patients ahead badge (only for today's WAITING/CALLED) -->
+                    <div th:if="${appt.appointmentDate.equals(today) and (appt.status.name() == 'WAITING' or appt.status.name() == 'CALLED' or appt.status.name() == 'IN_PROGRESS')}">
+                        <span class="ahead-badge">
+                            <i class="fa-solid fa-users"></i>
+                            <span th:text="${appointmentService.calculatePatientsAhead(appt)}">?</span> ahead
+                        </span>
+                    </div>
+
+                    <!-- Status pill -->
+                    <div>
+                        <span class="status-pill"
+                              th:classappend="${'status-' + appt.status.name().toLowerCase().replace('_', '_')}"
+                              th:text="${appt.status}">STATUS</span>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="appt-actions">
+                        <!-- Live tracker (only for today's active appointments) -->
+                        <a th:if="${appt.appointmentDate.equals(today)}"
+                           th:href="@{/patient/queue/{id}(id=${appt.id})}"
+                           class="btn-sm btn-sm-primary">
+                            <i class="fa-solid fa-satellite-dish"></i> Live Queue
+                        </a>
+                        <!-- Cancel (only BOOKED or WAITING) -->
+                        <form th:if="${appt.status.name() == 'BOOKED' or appt.status.name() == 'WAITING'}"
+                              th:action="@{/patient/cancel/{id}(id=${appt.id})}" method="post"
+                              onsubmit="return confirm('Cancel this appointment?')">
+                            <button type="submit" class="btn-sm btn-sm-danger">
+                                <i class="fa-solid fa-xmark"></i> Cancel
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty state -->
+            <div class="empty-state" th:if="${activeAppointments.empty}"
+                 style="background:#fff; border:1px solid var(--border-color); border-radius:var(--border-radius-md);">
+                <i class="fa-regular fa-calendar-xmark"></i>
+                <h4 style="font-size:18px; font-weight:700; color:var(--text-main); margin-bottom:8px;">No Active Appointments</h4>
+                <p style="margin-bottom:20px;">Book your first appointment to get started.</p>
+                <a th:href="@{/patient/book}" class="btn-primary-custom" style="padding:12px 28px;">
+                    <i class="fa-solid fa-plus"></i> Book Appointment
+                </a>
+            </div>
+
+        </div>
+    </main>
+
+
+</body>
+</html>

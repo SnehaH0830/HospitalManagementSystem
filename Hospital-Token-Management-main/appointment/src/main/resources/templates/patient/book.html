@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Appointment - MedQueue</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .doctor-card {
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius-md);
+            padding: 20px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            background: #fff;
+            position: relative;
+        }
+        .doctor-card:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(14,165,233,0.1);
+            transform: translateY(-2px);
+        }
+        .doctor-card.selected {
+            border-color: var(--primary-color);
+            background: var(--primary-light);
+            box-shadow: 0 0 0 4px rgba(14,165,233,0.15);
+        }
+        .doctor-card input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .doctor-avatar {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-info));
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 800;
+            flex-shrink: 0;
+            margin-bottom: 12px;
+        }
+        .specialization-badge {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            margin-top: 6px;
+        }
+        .schedule-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+        .day-chip {
+            font-size: 11px;
+            padding: 3px 9px;
+            border-radius: 10px;
+            font-weight: 600;
+            background: #f1f5f9;
+            color: var(--text-muted);
+        }
+        .day-chip.available {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .check-mark {
+            position: absolute;
+            top: 12px; right: 12px;
+            width: 24px; height: 24px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px;
+            opacity: 0;
+            transform: scale(0.6);
+            transition: var(--transition-smooth);
+        }
+        .doctor-card.selected .check-mark { opacity: 1; transform: scale(1); }
+        .form-section {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-md);
+            padding: 32px;
+            margin-bottom: 28px;
+        }
+        .form-section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .form-section-title .step-num {
+            width: 28px; height: 28px;
+            background: var(--primary-color);
+            color: #fff;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="navbar">
+        <div class="app-container nav-flex">
+            <a th:href="@{/patient/dashboard}" class="logo-brand">
+                <i class="fa-solid fa-hospital-user" style="color: var(--primary-color);"></i>
+                <span>MedQueue <span style="font-size:11px; padding:2px 8px; border-radius:10px; background:#f1f5f9; color:var(--text-muted); -webkit-text-fill-color:initial;">PATIENT</span></span>
+            </a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a th:href="@{/patient/dashboard}" class="nav-link">Dashboard</a></li>
+                    <li><a th:href="@{/patient/book}"      class="nav-link" style="color:var(--primary-color); font-weight:700;">Book Appointment</a></li>
+                    <li><a th:href="@{/patient/history}"   class="nav-link">History</a></li>
+                    <li><a th:href="@{/auth/logout}"       class="nav-link" style="color:var(--accent-danger);"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main style="padding: 40px 0; flex: 1;">
+        <div class="app-container" style="max-width: 860px;">
+
+            <!-- Page Header -->
+            <div style="margin-bottom: 32px;">
+                <a th:href="@{/patient/dashboard}" style="color:var(--text-muted); text-decoration:none; font-size:13px;">
+                    <i class="fa-solid fa-arrow-left-long"></i> Back to Dashboard
+                </a>
+                <h1 style="font-size:28px; font-weight:800; color:var(--text-main); margin-top:12px;">Book an Appointment</h1>
+                <p style="color:var(--text-muted); font-size:14px;">Choose a doctor and select an available date to get your queue token.</p>
+            </div>
+
+            <!-- Flash error -->
+            <div th:if="${errorMessage}" class="alert-banner alert-banner-danger" style="margin-bottom:24px;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span th:text="${errorMessage}"></span>
+            </div>
+
+            <form id="bookingForm" th:action="@{/patient/book}" method="post">
+
+                <!-- Step 1: Pick a Doctor -->
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <span class="step-num">1</span>
+                        Select a Doctor
+                    </div>
+
+                    <div th:if="${doctors.empty}" style="text-align:center; padding:30px; color:var(--text-muted);">
+                        <i class="fa-solid fa-user-doctor" style="font-size:36px; margin-bottom:12px; display:block;"></i>
+                        No doctors are registered yet. Please contact the administrator.
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px,1fr)); gap:16px;"
+                         th:if="${!doctors.empty}">
+
+                        <label class="doctor-card" th:each="doc : ${doctors}"
+                               th:attr="for=${'doc-' + doc.id}"
+                               onclick="selectDoctor(this)">
+                            <div class="check-mark"><i class="fa-solid fa-check"></i></div>
+                            <input type="radio" name="doctorId"
+                                   th:id="${'doc-' + doc.id}"
+                                   th:value="${doc.id}" required>
+                            <div class="doctor-avatar"
+                                 th:text="${#strings.substring(doc.firstName, 0, 1) + #strings.substring(doc.lastName, 0, 1)}">AB</div>
+                            <div>
+                                <h4 style="font-size:15px; font-weight:700; color:var(--text-main);"
+                                    th:text="${'Dr. ' + doc.firstName + ' ' + doc.lastName}">Dr. Name</h4>
+                                <span class="specialization-badge" th:text="${doc.specialization.name}">Specialization</span>
+                                <p style="font-size:12px; color:var(--text-muted); margin-top:8px;">
+                                    <i class="fa-solid fa-door-open"></i>
+                                    <span th:text="${doc.roomNumber}">Room</span>
+                                </p>
+                                <p style="font-size:12px; color:var(--text-muted);">
+                                    <i class="fa-regular fa-clock"></i>
+                                    ~<span th:text="${doc.avgConsultationTime}">8</span> min/patient
+                                </p>
+                            </div>
+                        </label>
+
+                    </div>
+                </div>
+
+                <!-- Step 2: Pick a Date -->
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <span class="step-num">2</span>
+                        Select Appointment Date
+                    </div>
+                    <div class="form-group" style="max-width:320px;">
+                        <label for="appointmentDate" class="form-label">Appointment Date</label>
+                        <input type="date" id="appointmentDate" name="appointmentDate"
+                               class="form-input"
+                               th:min="${#temporals.format(today, 'yyyy-MM-dd')}"
+                               required>
+                        <p style="font-size:12px; color:var(--text-muted); margin-top:6px;">
+                            <i class="fa-solid fa-circle-info"></i>
+                            Appointments can only be booked from today onwards. Availability depends on the selected doctor's schedule.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" id="submitBtn" class="btn-primary-custom" style="width:100%; padding:16px; font-size:16px;">
+                    <i class="fa-solid fa-ticket"></i> Confirm &amp; Get Token
+                </button>
+
+            </form>
+        </div>
+    </main>
+
+ 
+
+    <script>
+        function selectDoctor(labelEl) {
+            // Remove 'selected' from all doctor cards
+            document.querySelectorAll('.doctor-card').forEach(c => c.classList.remove('selected'));
+            // Mark the clicked one
+            labelEl.classList.add('selected');
+        }
+
+        // Set minimum date on the date picker to today
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('appointmentDate').min = today;
+        });
+    </script>
+
+</body>
+</html>

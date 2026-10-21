@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Specializations - Hospital Token Management System</title>
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 32px;
+            margin-top: 32px;
+        }
+        @media (max-width: 768px) {
+            .grid-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+        .list-card {
+            background-color: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-md);
+            box-shadow: var(--shadow-sm);
+            padding: 24px;
+        }
+        .spec-item {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .spec-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="navbar">
+        <div class="app-container nav-flex">
+            <a th:href="@{/admin/dashboard}" class="logo-brand">
+                <i class="fa-solid fa-hospital-user" style="color: var(--primary-color);"></i>
+                <span>MedQueue <span style="font-size: 11px; padding: 2px 8px; border-radius: 10px; background-color: #f1f5f9; color: var(--text-muted); -webkit-text-fill-color: initial;">ADMIN</span></span>
+            </a>
+            
+            <nav>
+                <ul class="nav-links">
+                    <li><a th:href="@{/admin/dashboard}" class="nav-link">Dashboard</a></li>
+                    <li><a th:href="@{/admin/specializations}" class="nav-link" style="color: var(--primary-color); font-weight: 700;">Specializations</a></li>
+                    <li><a th:href="@{/admin/doctors}" class="nav-link">Doctors</a></li>
+                    <li>
+                        <a th:href="@{/auth/logout}" class="nav-link" style="color: var(--accent-danger);">
+                            <i class="fa-solid fa-right-from-bracket"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main style="padding: 40px 0;">
+        <div class="app-container">
+            
+            <!-- Welcome Header -->
+            <div style="margin-bottom: 16px;">
+                <h2 style="font-size: 28px; font-weight: 800; color: var(--text-main);">Clinical Specializations</h2>
+                <p style="color: var(--text-muted); font-size: 14px;">Manage departments and medical classifications.</p>
+            </div>
+
+            <!-- Success Alert -->
+            <div th:if="${param.success}" class="alert-banner alert-banner-success">
+                <i class="fa-solid fa-circle-check"></i>
+                <div>Specialization saved successfully!</div>
+            </div>
+
+            <!-- Main Grid Layout -->
+            <div class="grid-layout">
+                
+                <!-- Left: Form Card -->
+                <div class="glass-card" style="align-self: start;">
+                    <h3 style="font-size: 18px; font-weight: 700; color: var(--text-main); margin-bottom: 20px;">Add Department</h3>
+                    
+                    <form th:action="@{/admin/specializations}" th:object="${specialization}" method="post">
+                        <!-- Error Text -->
+                        <div th:if="${error}" class="alert-banner alert-banner-danger" style="padding: 10px; font-size: 13px; margin-bottom: 16px;" th:text="${error}">
+                            Error message
+                        </div>
+
+                        <!-- Specialization Name -->
+                        <div class="form-group">
+                            <label for="name" class="form-label">Specialization Name</label>
+                            <input type="text" id="name" th:field="*{name}" class="form-input" placeholder="e.g. Cardiology" required>
+                        </div>
+
+                        <!-- Specialization Description -->
+                        <div class="form-group">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea id="description" th:field="*{description}" class="form-input" placeholder="Clinical services details..." rows="4" style="resize: none;"></textarea>
+                        </div>
+
+                        <!-- Submit -->
+                        <button type="submit" class="btn-primary-custom" style="width: 100%; padding: 12px;">
+                            Save Specialization <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Right: List Card -->
+                <div class="list-card">
+                    <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 16px; margin-bottom: 16px;">
+                        <h3 style="font-size: 18px; font-weight: 700; color: var(--text-main);">Current Specializations</h3>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column;">
+                        <!-- Specialization Item -->
+                        <div class="spec-item" th:each="spec : ${specializations}">
+                            <div>
+                                <h4 style="font-size: 16px; font-weight: 700; color: var(--text-main);" th:text="${spec.name}">Cardiology</h4>
+                                <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;" th:text="${spec.description}">Heart health details</p>
+                            </div>
+                            <div class="metric-icon metric-icon-blue" style="width: 36px; height: 36px; font-size: 14px;">
+                                <i class="fa-solid fa-stethoscope"></i>
+                            </div>
+                        </div>
+
+                        <!-- Empty state -->
+                        <div th:if="${specializations.empty}" style="text-align: center; color: var(--text-muted); padding: 40px 0;">
+                            <i class="fa-solid fa-folder-open" style="font-size: 32px; display: block; margin-bottom: 12px; color: #cbd5e1;"></i>
+                            No specializations created yet. Add one on the left.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+
+</body>
+</html>
